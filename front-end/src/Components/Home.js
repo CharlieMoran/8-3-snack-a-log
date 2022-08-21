@@ -1,16 +1,16 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import Snack from './Snacks';
+import Snacks from './Snacks';
 
 function Home() {
   const URL = process.env.REACT_APP_API_URL;
-  const [snacks, setSnacks] = useState([]);
+  const [snacks, getAllSnacks] = useState([]);
 
   useEffect(() => {
     axios
       .get(`${URL}/snacks`)
-      .then((response) => setSnacks(response.data))
-      .catch((error) => console.warn(error));
+      .then((response) => getAllSnacks(response.data.payload))
+      .catch((error) => console.log(error.message));
   }, [URL]);
 
   return (
@@ -27,7 +27,7 @@ function Home() {
           </thead>
           <tbody>
             {snacks.map((snack) => {
-              return <Snack key={snack.id} snack={snack} />;
+              return <Snacks key={snack.id} snack={snack} />;
             })}
           </tbody>
         </table>
