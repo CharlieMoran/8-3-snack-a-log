@@ -1,17 +1,32 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import Snacks from './Snacks';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import IsHealthy from './HeartHealth';
+import './Show.css';
 
 function Show() {
   const URL = process.env.REACT_APP_API_URL;
-  const [snacks, setSnacks] = useState([]);
+  const [snacks, getSnack] = useState([]);
+  let { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get(`${URL}/snacks`)
-      .then((response) => setSnacks(response.data))
+      .get(`${URL}/snacks/${id}`)
+      .then((response) => getSnack(response.data.payload))
       .catch((error) => console.warn(error));
-  }, [URL]);
+  }, [URL, id, navigate]);
+
+  const handleDelete = () => {
+    axios
+      .delete(`${URL}/snacks/${id}`)
+      .then(() => {
+        navigate(`/snacks`);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <div className='snacks'>
@@ -19,17 +34,26 @@ function Show() {
         <table>
           <thead>
             <tr>
-              <th>SNACK</th>
-              <th>FIBER</th>
-              <th>PROTEIN</th>
-              <th>ADDED SUGAR</th>
+              <img src={`${snacks.image}.jpg`} alt='Snack'></img>
+              <th>SNACK: {snacks.name}</th>
+              <th>FIBER: {snacks.fiber}</th>
+              <th>PROTEIN: {snacks.protein}</th>
+              <th>ADDED SUGAR: {snacks.added_sugar}</th>
+              <th>
+                <IsHealthy />
+              </th>
             </tr>
+
+            <Link to={`/snacks/${id}/edit`}>
+              <button id='edit'>Edit</button>
+            </Link>
+            <Link to={`/`}>
+              <button id='back'>Back</button>
+            </Link>
+            <button id='delete' onClick={handleDelete}>
+              Delete
+            </button>
           </thead>
-          <tbody>
-            {snacks.map((snack) => {
-              return <Snacks key={snacks.id} snack={snack} />;
-            })}
-          </tbody>
         </table>
       </section>
     </div>
